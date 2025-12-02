@@ -2,8 +2,9 @@
     box-sizing: border-box;
 }
 
+/* results here section */
 body {
-    background-color: #fff;
+    background-color: #424769;
     /* chosen by VSC */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
     margin: 0;
@@ -18,9 +19,14 @@ button {
     font-size: inherit;
     padding: 0.5rem 1rem;
     border: none;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #ba85a8;
+    color: rgb(209, 209, 209);
     border-radius: 4px;
+}
+
+/* added hover color change feature -> showed order is important becasue intially put under input:focus and button:focus */
+button:hover {
+    background-color: rgba(133, 44, 93, 0.882);
 }
 
 button:active {
@@ -55,7 +61,7 @@ header::after {
     left: 0;
     height: 100%;
     width: 100%;
-    /* change color and position */
+    /* change background color */
     background-color: rgba(134, 129, 129, 0.297);
 }
 
@@ -101,7 +107,7 @@ form button {
     border: 0;
     /* changed corner roundeness to change to rectangle */
     border-radius: 10px;
-    color: rgb(255, 255, 255);
+    color: rgb(246, 246, 246);
     /* chnaged font size */
     font-size: 12px;
     /* changed padding measurements */
@@ -148,6 +154,9 @@ ul.songs li {
 .container p {
     display: flex;
     justify-content: center;
+    /* added these two elements below */
+    font-size: 25px; /* made bigger */
+    color: white; /* add color to show on body */
 }
 
 .centered button {
