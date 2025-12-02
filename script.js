@@ -25,3 +25,153 @@ form.addEventListener('submit', (e) => {
     }
 });
 
+// show data in DOM
+
+// show song and artist in DOM
+function showDataUnsafe(lyrics) {
+    result.innerHTML = `
+        <ul class="songs">
+            ${lyrics.data
+                .map(
+                    (song) => `<li>
+            <span><strong>${song.artist.name}</strong> - ${song.title}</span>
+            <button class="but" data-artist="${song.artist.name}" data-songtitle="${song.title}">Get Lyrics</button>
+        </li>`
+                )
+                .join('')}
+        </ul>
+    `;
+
+    if (lyrics.prev || lyrics.next) {
+        more.innerHTML = `
+        ${
+            lyrics.prev
+                ? `<button class="but" onclick="getMoreSongs('${lyrics.prev}')">Prev</button>`
+                : ''
+        }
+        ${
+            lyrics.next
+                ? `<button class="but" onclick="getMoreSongs('${lyrics.next}')">Next</button>`
+                : ''
+        }
+    `;
+    } else {
+        more.innerHTML = '';
+    }
+}
+
+function showDataSafe(lyrics) {
+    result.innerHTML = '';
+    more.innerHTML = '';
+
+    const ul = document.createElement('ul');
+    ul.className = 'songs';
+
+    lyrics.data.forEach((song) => {
+        const li = document.createElement('li');
+
+        const span = document.createElement('span');
+
+        const strong = document.createElement('strong');
+        strong.textContent = song.artist.name;
+
+        span.appendChild(strong);
+        span.appendChild(document.createTextNode(` - ${song.title}`));
+        li.appendChild(span);
+
+        const button = document.createElement('button');
+        button.className = 'but';
+        button.textContent = 'Get Lyrics';
+        button.dataset.artist = song.artist.name;
+        button.dataset.songtitle = song.title;
+
+        li.appendChild(button);
+        ul.appendChild(li);
+    });
+
+    result.appendChild(ul);
+
+    if (lyrics.prev || lyrics.next) {
+        if (lyrics.prev) {
+            const prevButton = document.createElement('button');
+            prevButton.className = 'but';
+            prevButton.textContent = 'Prev';
+            prevButton.addEventListener('click', () => getMoreSongs(lyrics.prev));
+            more.appendChild(prevButton);
+        }
+
+        if (lyrics.next) {
+            const nextButton = document.createElement('button');
+            nextButton.className = 'but';
+            nextButton.textContent = 'Next';
+            nextButton.addEventListener('click', () => getMoreSongs(lyrics.next));
+            more.appendChild(nextButton);
+        }
+    }
+}
+
+// lyrics button click
+result.addEventListener('click', (e) => {
+    const clickedEl = e.target;
+
+    if (clickedEl.tagName === 'BUTTON') {
+        const artist = clickedEl.getAttribute('data-artist');
+        const songTitle = clickedEl.getAttribute('data-songtitle');
+
+        // getLyricsUnsafe(artist, songTitle);
+        getLyricsSafe(artist, songTitle);
+    }
+});
+
+// get lyrics for song
+async function getLyricsUnsafe(artist, songTitle) {
+    const res = await fetch(`${apiURL}/v1/${artist}/${songTitle}`);
+    const data = await res.json();
+
+    if (data.error) {
+        result.innerHTML = data.error;
+    } else {
+        const lyrics = data.lyrics.replace(/(\r\n|\r|\n)/g, '<br>');
+      
+        result.innerHTML = `
+            <h2><strong>${artist}</strong> - ${songTitle}</h2>
+            <span>${lyrics}</span>
+            `;
+    }
+    more.innerHTML = '';
+}
+
+async function getLyricsSafe(artist, songTitle) {
+    const res = await fetch(`${apiURL}/v1/${artist}/${songTitle}`);
+    const data = await res.json();
+
+    result.innerHTML = '';
+    more.innerHTML = '';
+
+    if (data.error) {
+        const errorMessage = document.createElement('p');
+        errorMessage.textContent = data.error;
+        result.append(errorMessage);
+        return;
+    }
+
+    // create heading
+    const heading = document.createElement('h2');
+    const strong = document.createElement('strong');
+    strong.textContent = artist;
+
+    heading.append(strong, ' - ${songTitle}');
+    result.append(heading);
+
+    // create lyrics block with line breaks
+    const span = document.createElement('span');
+    const lines = data.lyrics.split(/\r\n|\r|\n/);
+    lines.forEach((line, index) => {
+        span.append(line);
+        if (index < lines.length - 1) {
+            span.append(document.createElement('br'));
+        }
+    });
+
+    result.append(span);
+}

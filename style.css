@@ -71,7 +71,7 @@ header h1 {
     /* adjust font weight/thickness */
     font-weight: 535;
     /* added this to Lyric Search text so it will be visable */
-    text-shadow: #4CAF50 3px 5px 7px;
+    text-shadow: #0d0f0d 3px 5px 7px;
 }
 
 form {
@@ -97,7 +97,7 @@ form button {
     top: 5px;
     right: 5px;
     /* changed search button color */
-    background-color: rgb(227, 148, 31);
+    background-color: rgb(133, 44, 93);
     border: 0;
     /* changed corner roundeness to change to rectangle */
     border-radius: 10px;
