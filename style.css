@@ -152,6 +152,20 @@ ul.songs li {
     margin: 10px 0;
 }
 
+/* AI (ChatGPT, GPT-4): Prompted with "how to change color of lyrics" → used for 159 - 168. */
+/* Lyrics view */
+#result h2 {
+  color: #ffffff;        /* heading (artist - title) color */
+  margin-bottom: 1rem;
+}
+
+#result span {
+  color: #e6e6e6;        /* lyrics color */
+  font-size: 17px;
+  line-height: 1.6;
+  white-space: pre-wrap; /* preserves spacing if you switch to plain text */
+}
+
 .container {
     /* changed size */
     margin: 40px auto;
