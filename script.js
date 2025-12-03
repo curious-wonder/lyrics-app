@@ -8,21 +8,38 @@ const apiURL = 'https://api.lyrics.ovh';
 
 //search by song or artist
 async function searchSongs(term) {
-    const res = await fetch(`${apiURL}/suggest/${term}`);
-    const data = await res.json();
+    try {
+        result.innerHTML = '<p>Loading results...</p>';
+        more.innerHTML = '';
 
-    console.log(data);
+        const res = await fetch(`${apiURL}/suggest/${encodeURIComponent(term)}`);
+        if (!res.ok) throw new Error(`Search request failed: ${res.status}`);
+
+        const data = await res.json();
+
+        // render results into the DOM
+        showDataSafe(data);
+    } catch (err) {
+        result.innerHTML = '';
+        const p = document.createElement('p');
+        p.textContent = 'Error fetching search results. ' + err.message;
+        result.appendChild(p);
+        more.innerHTML = '';
+        console.error(err);
+    }
 }
 
 //event listeners
 form.addEventListener('submit', (e) => {
     e.preventDefault();
+    const searchTerm = search.value.trim();
 
     if (!searchTerm) {
         alert('Please type in a search term');
-    } else {
-        searchSongs(searchTerm);
+        return;
     }
+
+    searchSongs(searchTerm);
 });
 
 // show data in DOM
@@ -110,6 +127,26 @@ function showDataSafe(lyrics) {
     }
 }
 
+// fetch next/prev pages (API returns full url for prev/next)
+async function getMoreSongs(url) {
+    try {
+        result.innerHTML = '<p>Loading...</p>';
+        more.innerHTML = '';
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Pagination request failed: ${res.status}`);
+
+        const data = await res.json();
+        showDataSafe(data);
+    } catch (err) {
+        result.innerHTML = '';
+        const p = document.createElement('p');
+        p.textContent = 'Error fetching more results. ' + err.message;
+        result.appendChild(p);
+        console.error(err);
+    }
+}
+
 // lyrics button click
 result.addEventListener('click', (e) => {
     const clickedEl = e.target;
@@ -125,53 +162,76 @@ result.addEventListener('click', (e) => {
 
 // get lyrics for song
 async function getLyricsUnsafe(artist, songTitle) {
-    const res = await fetch(`${apiURL}/v1/${artist}/${songTitle}`);
-    const data = await res.json();
+    try {
+        result.innerHTML = '<p>Loading lyrics...</p>';
+        more.innerHTML = '';
 
-    if (data.error) {
-        result.innerHTML = data.error;
-    } else {
-        const lyrics = data.lyrics.replace(/(\r\n|\r|\n)/g, '<br>');
-      
-        result.innerHTML = `
-            <h2><strong>${artist}</strong> - ${songTitle}</h2>
-            <span>${lyrics}</span>
-            `;
+        const res = await fetch(`${apiURL}/v1/${encodeURIComponent(artist)}/${encodeURIComponent(songTitle)}`);
+        if (!res.ok) throw new Error(`Lyrics request failed: ${res.status}`);
+
+        const data = await res.json();
+
+        if (data.error) {
+            result.innerHTML = '';
+            const p = document.createElement('p');
+            p.textContent = data.error;
+            result.appendChild(p);
+        } else {
+            const lyrics = data.lyrics.replace(/(\r\n|\r|\n)/g, '<br>');
+
+            result.innerHTML = `\n            <h2><strong>${artist}</strong> - ${songTitle}</h2>\n            <span>${lyrics}</span>\n            `;
+        }
+    } catch (err) {
+        result.innerHTML = '';
+        const p = document.createElement('p');
+        p.textContent = 'Error fetching lyrics. ' + err.message;
+        result.appendChild(p);
+        console.error(err);
     }
     more.innerHTML = '';
 }
 
 async function getLyricsSafe(artist, songTitle) {
-    const res = await fetch(`${apiURL}/v1/${artist}/${songTitle}`);
-    const data = await res.json();
+    try {
+        result.innerHTML = '';
+        more.innerHTML = '';
 
-    result.innerHTML = '';
-    more.innerHTML = '';
+        const res = await fetch(`${apiURL}/v1/${encodeURIComponent(artist)}/${encodeURIComponent(songTitle)}`);
+        if (!res.ok) throw new Error(`Lyrics request failed: ${res.status}`);
 
-    if (data.error) {
-        const errorMessage = document.createElement('p');
-        errorMessage.textContent = data.error;
-        result.append(errorMessage);
-        return;
-    }
+        const data = await res.json();
 
-    // create heading
-    const heading = document.createElement('h2');
-    const strong = document.createElement('strong');
-    strong.textContent = artist;
-
-    heading.append(strong, ' - ${songTitle}');
-    result.append(heading);
-
-    // create lyrics block with line breaks
-    const span = document.createElement('span');
-    const lines = data.lyrics.split(/\r\n|\r|\n/);
-    lines.forEach((line, index) => {
-        span.append(line);
-        if (index < lines.length - 1) {
-            span.append(document.createElement('br'));
+        if (data.error) {
+            const errorMessage = document.createElement('p');
+            errorMessage.textContent = data.error;
+            result.append(errorMessage);
+            return;
         }
-    });
 
-    result.append(span);
+        // create heading
+        const heading = document.createElement('h2');
+        const strong = document.createElement('strong');
+        strong.textContent = artist;
+
+        heading.append(strong, ` - ${songTitle}`);
+        result.append(heading);
+
+        // create lyrics block with line breaks
+        const span = document.createElement('span');
+        const lines = data.lyrics.split(/\r\n|\r|\n/);
+        lines.forEach((line, index) => {
+            span.append(line);
+            if (index < lines.length - 1) {
+                span.append(document.createElement('br'));
+            }
+        });
+
+        result.append(span);
+    } catch (err) {
+        result.innerHTML = '';
+        const p = document.createElement('p');
+        p.textContent = 'Error fetching lyrics. ' + err.message;
+        result.appendChild(p);
+        console.error(err);
+    }
 }

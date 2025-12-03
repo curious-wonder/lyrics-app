@@ -115,14 +115,28 @@ form button {
 }
 
 /* injecting but class via JS */
+/* get lyrics buttons */
 .but {
     /* changed background color */
-    background-color: rgb(207, 162, 99);
+    background-color: rgb(209, 167, 108);
     border: 0;
     /* changed border radius size */
-    border-radius: 50px;
-    color: white;
+    border-radius: 20px;
+    color: rgb(250, 250, 250);
     padding: 4px 10px;
+}
+
+/* AI (ChatGPT, GPT-4): Prompted with "how do I change font color of song information?" → used for 129 - 139. */
+/* Song list colors */
+ul.songs li span {
+  color: #e6e6e6;       /* song title color (and default for text in span) */
+  font-size: 20px;
+  line-height: 1.4;
+}
+
+ul.songs li span strong {
+  color: #e6e6e6;       /* artist (bold) color */
+  font-weight: 700;
 }
 
 /* wont see until fetch data from API */
